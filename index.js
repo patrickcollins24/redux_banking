@@ -1,45 +1,72 @@
 'use strict';
-import { createStore } from 'redux';
+// import { createStore } from 'redux';
+
+const { createStore } = Redux;
 
 console.log('App Started!');
 
-//Store!!
+// Store!!
 const defaultState = {
-    balance: 0
-}
+    balance: 0,
+};
 
-// actions!!
-const actionIncrement = {
-    type: 'increment'
-}
-
-const actionDecrement = {
-    type: 'decrement'
-}
-
-//Reducer!!
-const account = (state=defaultState, action) => {
-    switch (action.type) {
-        case 'increment':
-            return{
-                balance: state.balance +1,
-            };
-        case 'decrement':
-            return {
-                balance: state.balance -1
-            }
-            default:
-                return state;
+// Actions!
+const actionIncrement = (amount) => {
+    return {
+        type: 'increment',
+        payload: amount
     }
 }
 
-const store = createStore(account);
+const actionDecrement = (amount) => {
+    return {
+        type: 'decrement',
+        payload: amount
+    }
+}
+
+// Reducer!!
+const account = (state = defaultState, action) => {
+    console.log("action is:", action);
+    switch (action.type) {
+        case 'increment':
+            return {
+                balance: state.balance + action.payload,
+            };
+        case 'decrement':
+            return {
+                balance: state.balance - action.payload,
+            };
+        default:
+            return state;
+    }
+};
+
+const store = createStore(
+    account,
+    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+);
 
 store.subscribe(() => {
-    console.log('subscribing to state changes..')
+    console.log('subscribing to state changes...');
     const state = store.getState();
-    console.log("the state is:", state);
-})
+    console.log('the state is:', state);
+    const balance = document.querySelector('#balance');
+    balance.innerHTML = state.balance;
+});
 
-store.dispatch(actionIncrement);
-store.dispatch(actionDecrement)
+const incrementButton = document.querySelector('#add');
+const decrementButton = document.querySelector('#subtract');
+const amount = document.querySelector('#amount');
+
+incrementButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    const amountValue = parseInt(amount.value);
+    store.dispatch(actionIncrement(amountValue));
+});
+
+decrementButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    const amountValue = parseInt(amount.value);
+    store.dispatch(actionDecrement(amountValue));
+})
